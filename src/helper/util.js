@@ -1,5 +1,7 @@
 import dayjs from "dayjs";
 
+export const ITEM_WIDTH = 220;
+
 export const fillEmptyColumns = (columns, start, end) => {
   const filledColumns = columns.slice(0);
 

@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, View, Text, Image } from "react-native";
+import { FlatList, StyleSheet, View, Text, Image, KeyboardAvoidingView, Platform, Pressable, Keyboard } from "react-native";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import dayjs from "dayjs";
 import { useEffect } from "react";
@@ -10,6 +10,7 @@ import { useToDoList } from "./src/hooks/useToDoList";
 import Calendar from "./src/components/Calendar";
 import Margin from "./src/components/Margin";
 import AddToDoInput from "./src/components/AddToDoInput";
+import { ITEM_WIDTH } from "./src/helper/util";
 
 export default function App() {
   const now = dayjs();
@@ -28,7 +29,7 @@ export default function App() {
       <View
         style={{
           flexDirection: "row",
-          width: 220,
+          width: ITEM_WIDTH,
           alignSelf: "center",
           paddingVertical: 10,
           paddingHorizontal: 5,
@@ -42,38 +43,51 @@ export default function App() {
     );
   };
 
+  const onPressAdd = () => {};
+
+  const ListHeaderComponent = () => {
+    return (
+      <View>
+        <Calendar
+          selectedDate={selectedDate}
+          onPressLeftArrow={onPressLeftArrow}
+          onPressRightArrow={onPressRightArrow}
+          onPressHeaderDate={onPressHeaderDate}
+          onPressDate={onPressDate}
+        />
+        <Margin height={15} />
+        <View style={{ width: 4, height: 4, borderRadius: 4 / 2, backgroundColor: "#A3A3A3", alignSelf: "center" }} />
+        <Margin height={15} />
+      </View>
+    );
+  };
+
   return (
     <SafeAreaProvider>
-      <View style={{ flex: 1 }}>
+      <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
         <Image
           source={{
             uri: "https://img.freepik.com/free-photo/white-crumpled-paper-texture-for-background_1373-159.jpg?w=1060&t=st=1667524235~exp=1667524835~hmac=8a3d988d6c33a32017e280768e1aa4037b1ec8078c98fe21f0ea2ef361aebf2c",
           }}
           style={{ width: "100%", height: "100%", position: "absolute" }}
         />
-        <SafeAreaView style={styles.container}>
-          <Calendar
-            selectedDate={selectedDate}
-            onPressLeftArrow={onPressLeftArrow}
-            onPressRightArrow={onPressRightArrow}
-            onPressHeaderDate={onPressHeaderDate}
-            onPressDate={onPressDate}
-          />
-          <Margin height={15} />
-          <View style={{ width: 4, height: 4, borderRadius: 4 / 2, backgroundColor: "#A3A3A3", alignSelf: "center" }} />
-          <Margin height={15} />
-          <FlatList data={toDoList} renderItem={ToDoRenderItem} />
-          <AddToDoInput />
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
+          <SafeAreaView>
+            <FlatList data={toDoList} renderItem={ToDoRenderItem} ListHeaderComponent={ListHeaderComponent} />
+            <Margin height={20} />
+            <AddToDoInput value={input} onChangeText={setInput} placeholder={`${dayjs(selectedDate).format("MM.DD")}에 추가할 ToDo`} onPressAdd={onPressAdd} />
+          </SafeAreaView>
           <DateTimePickerModal isVisible={isDatePickerVisible} mode="date" onConfirm={handleConfirm} onCancel={hideDatePicker} />
-        </SafeAreaView>
-      </View>
+        </KeyboardAvoidingView>
+      </Pressable>
     </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: "center",
+    flex: 1,
     alignItems: "center",
+    justifyContent: "center",
   },
 });
