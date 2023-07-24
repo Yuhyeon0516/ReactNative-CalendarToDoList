@@ -1,6 +1,6 @@
 import { Text, TouchableOpacity } from "react-native";
 
-const CalendarColumn = ({ text, color, opacity, disabled, onPress, isSelected }) => {
+const CalendarColumn = ({ text, color, opacity, disabled, onPress, isSelected, hasToDo }) => {
   const columnsSize = 35;
 
   return (
@@ -16,7 +16,7 @@ const CalendarColumn = ({ text, color, opacity, disabled, onPress, isSelected })
       disabled={disabled}
       onPress={onPress}
     >
-      <Text style={{ color: color, opacity: opacity }}>{text}</Text>
+      <Text style={{ color: color, opacity: opacity, fontWeight: hasToDo ? "bold" : "normal" }}>{text}</Text>
     </TouchableOpacity>
   );
 };

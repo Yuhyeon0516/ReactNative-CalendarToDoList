@@ -1,70 +1,114 @@
-import { FlatList, StyleSheet, TouchableOpacity, View, Text } from "react-native";
-import { getCalendarColumns, getDayColor, getDayText } from "./src/helper/util";
+import { FlatList, StyleSheet, View, Text, Image, KeyboardAvoidingView, Platform, Pressable, Keyboard, Alert } from "react-native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import dayjs from "dayjs";
 import { useEffect } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import CalendarColumn from "./src/components/CalendarColumn";
-import CalendarArrowButton from "./src/components/CalendarArrowButton";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { Ionicons } from "@expo/vector-icons";
+
 import { useCalendar } from "./src/hooks/useCalendar";
+import { useToDoList } from "./src/hooks/useToDoList";
+import Calendar from "./src/components/Calendar";
+import Margin from "./src/components/Margin";
+import AddToDoInput from "./src/components/AddToDoInput";
+import { ITEM_WIDTH } from "./src/helper/util";
 
 export default function App() {
   const now = dayjs();
   const { selectedDate, setSelectedDate, isDatePickerVisible, showDatePicker, hideDatePicker, handleConfirm, subtractOneMonth, addOneMonth } = useCalendar(now);
-  const colums = getCalendarColumns(selectedDate);
+  const { toDoList, filteredToDoList, addToDo, deleteToDo, toggleToDo, input, setInput, resetInput } = useToDoList(selectedDate);
 
   useEffect(() => {}, [selectedDate]);
 
   const onPressLeftArrow = subtractOneMonth;
   const onPressRightArrow = addOneMonth;
+  const onPressHeaderDate = showDatePicker;
+  const onPressDate = setSelectedDate;
 
-  const CalendarRenderItem = ({ item: date }) => {
-    const dateText = dayjs(date).get("date");
-    const day = dayjs(date).get("day");
-    const color = getDayColor(day);
-    const isCurrentMonth = dayjs(date).isSame(selectedDate, "month");
-    const onPress = () => {
-      setSelectedDate(date);
+  const ToDoRenderItem = ({ item: toDo }) => {
+    const onPress = () => toggleToDo(toDo.id);
+    const onLongPress = () => {
+      Alert.alert("삭제하시겠습니까?", "", [
+        {
+          style: "cancel",
+          text: "No",
+        },
+        {
+          text: "Yes",
+          onPress: () => deleteToDo(toDo.id),
+        },
+      ]);
     };
+    return (
+      <Pressable
+        onPress={onPress}
+        onLongPress={onLongPress}
+        style={{
+          flexDirection: "row",
+          width: ITEM_WIDTH,
+          alignSelf: "center",
+          paddingVertical: 10,
+          paddingHorizontal: 5,
+          borderBottomWidth: 0.2,
+          borderBottomColor: "#A6A6A6",
+        }}
+      >
+        <Text style={{ flex: 1, fontSize: 14, color: "#595959" }}>{toDo.content}</Text>
+        <Ionicons name="ios-checkmark" size={17} color={toDo.isSuccess ? "#595959" : "#BFBFBF"} />
+      </Pressable>
+    );
+  };
 
-    const isSelected = dayjs(date).isSame(selectedDate, "date");
+  const onPressAdd = () => {
+    addToDo();
+    Keyboard.dismiss();
+  };
 
-    return <CalendarColumn text={dateText} color={color} opacity={isCurrentMonth ? 1 : 0.4} onPress={onPress} isSelected={isSelected} />;
+  const onSubmitEditing = () => {
+    addToDo();
   };
 
   const ListHeaderComponent = () => {
-    const currentDateText = dayjs(selectedDate).format("YYYY.MM.DD");
     return (
       <View>
-        <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-          <CalendarArrowButton onPress={onPressLeftArrow} iconName={"arrow-left"} />
-          <TouchableOpacity onPress={showDatePicker}>
-            <Text style={{ fontSize: 20, color: "#404040" }}>{currentDateText}</Text>
-          </TouchableOpacity>
-          <CalendarArrowButton onPress={onPressRightArrow} iconName={"arrow-right"} />
-        </View>
-
-        <View style={{ flexDirection: "row" }}>
-          {[0, 1, 2, 3, 4, 5, 6].map((day) => {
-            return <CalendarColumn key={`day-${day}`} text={getDayText(day)} color={getDayColor(day)} opacity={1} disabled={true} />;
-          })}
-        </View>
+        <Calendar
+          toDoList={toDoList}
+          selectedDate={selectedDate}
+          onPressLeftArrow={onPressLeftArrow}
+          onPressRightArrow={onPressRightArrow}
+          onPressHeaderDate={onPressHeaderDate}
+          onPressDate={onPressDate}
+        />
+        <Margin height={15} />
+        <View style={{ width: 4, height: 4, borderRadius: 4 / 2, backgroundColor: "#A3A3A3", alignSelf: "center" }} />
+        <Margin height={15} />
       </View>
     );
   };
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
-        <FlatList
-          data={colums}
-          keyExtractor={(_, index) => `column-${index}`}
-          renderItem={CalendarRenderItem}
-          numColumns={7}
-          ListHeaderComponent={ListHeaderComponent}
+      <Pressable style={{ flex: 1 }} onPress={Keyboard.dismiss}>
+        <Image
+          source={{
+            uri: "https://img.freepik.com/free-photo/white-crumpled-paper-texture-for-background_1373-159.jpg?w=1060&t=st=1667524235~exp=1667524835~hmac=8a3d988d6c33a32017e280768e1aa4037b1ec8078c98fe21f0ea2ef361aebf2c",
+          }}
+          style={{ width: "100%", height: "100%", position: "absolute" }}
         />
-        <DateTimePickerModal isVisible={isDatePickerVisible} mode="date" onConfirm={handleConfirm} onCancel={hideDatePicker} />
-      </SafeAreaView>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
+          <SafeAreaView>
+            <FlatList data={filteredToDoList} renderItem={ToDoRenderItem} ListHeaderComponent={ListHeaderComponent} showsVerticalScrollIndicator={false} />
+            <Margin height={20} />
+            <AddToDoInput
+              value={input}
+              onChangeText={setInput}
+              placeholder={`${dayjs(selectedDate).format("MM.DD")}에 추가할 ToDo`}
+              onPressAdd={onPressAdd}
+              onSubmitEditing={onSubmitEditing}
+            />
+          </SafeAreaView>
+          <DateTimePickerModal isVisible={isDatePickerVisible} mode="date" onConfirm={handleConfirm} onCancel={hideDatePicker} />
+        </KeyboardAvoidingView>
+      </Pressable>
     </SafeAreaProvider>
   );
 }
@@ -72,7 +116,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
   },
