@@ -1,44 +1,22 @@
 import { FlatList, StyleSheet, TouchableOpacity, View, Text } from "react-native";
 import { getCalendarColumns, getDayColor, getDayText } from "./src/helper/util";
 import dayjs from "dayjs";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import CalendarColumn from "./src/components/CalendarColumn";
 import CalendarArrowButton from "./src/components/CalendarArrowButton";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { useCalendar } from "./src/hooks/useCalendar";
 
 export default function App() {
   const now = dayjs();
-  const [selectedDate, setSelectedDate] = useState(now);
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const { selectedDate, setSelectedDate, isDatePickerVisible, showDatePicker, hideDatePicker, handleConfirm, subtractOneMonth, addOneMonth } = useCalendar(now);
   const colums = getCalendarColumns(selectedDate);
 
   useEffect(() => {}, [selectedDate]);
 
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const handleConfirm = (date) => {
-    setSelectedDate(dayjs(date));
-    hideDatePicker();
-  };
-
-  const onPressLeftArrow = () => {
-    const newSelectedDate = dayjs(selectedDate).subtract(1, "month");
-
-    setSelectedDate(newSelectedDate);
-  };
-
-  const onPressRightArrow = () => {
-    const newSelectedDate = dayjs(selectedDate).add(1, "month");
-
-    setSelectedDate(newSelectedDate);
-  };
+  const onPressLeftArrow = subtractOneMonth;
+  const onPressRightArrow = addOneMonth;
 
   const CalendarRenderItem = ({ item: date }) => {
     const dateText = dayjs(date).get("date");
