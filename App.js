@@ -15,7 +15,7 @@ import { ITEM_WIDTH } from "./src/helper/util";
 export default function App() {
   const now = dayjs();
   const { selectedDate, setSelectedDate, isDatePickerVisible, showDatePicker, hideDatePicker, handleConfirm, subtractOneMonth, addOneMonth } = useCalendar(now);
-  const { filteredToDoList, addToDo, deleteToDo, toggleToDo, input, setInput, resetInput } = useToDoList(selectedDate);
+  const { toDoList, filteredToDoList, addToDo, deleteToDo, toggleToDo, input, setInput, resetInput } = useToDoList(selectedDate);
 
   useEffect(() => {}, [selectedDate]);
 
@@ -73,6 +73,7 @@ export default function App() {
     return (
       <View>
         <Calendar
+          toDoList={toDoList}
           selectedDate={selectedDate}
           onPressLeftArrow={onPressLeftArrow}
           onPressRightArrow={onPressRightArrow}

@@ -6,7 +6,7 @@ import { getCalendarColumns, getDayColor, getDayText } from "../helper/util";
 import CalendarColumn from "./CalendarColumn";
 import CalendarArrowButton from "./CalendarArrowButton";
 
-const Calendar = ({ selectedDate, onPressLeftArrow, onPressRightArrow, onPressHeaderDate, onPressDate }) => {
+const Calendar = ({ toDoList, selectedDate, onPressLeftArrow, onPressRightArrow, onPressHeaderDate, onPressDate }) => {
   const colums = getCalendarColumns(selectedDate);
 
   const CalendarRenderItem = ({ item: date }) => {
@@ -15,10 +15,10 @@ const Calendar = ({ selectedDate, onPressLeftArrow, onPressRightArrow, onPressHe
     const color = getDayColor(day);
     const isCurrentMonth = dayjs(date).isSame(selectedDate, "month");
     const onPress = () => onPressDate(date);
-
     const isSelected = dayjs(date).isSame(selectedDate, "date");
+    const hasToDo = toDoList.find((toDo) => dayjs(toDo.date).isSame(dayjs(date), "date"));
 
-    return <CalendarColumn text={dateText} color={color} opacity={isCurrentMonth ? 1 : 0.4} onPress={onPress} isSelected={isSelected} />;
+    return <CalendarColumn text={dateText} color={color} opacity={isCurrentMonth ? 1 : 0.4} onPress={onPress} isSelected={isSelected} hasToDo={hasToDo} />;
   };
 
   const ListHeaderComponent = () => {

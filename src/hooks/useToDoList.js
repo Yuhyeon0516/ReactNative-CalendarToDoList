@@ -46,6 +46,7 @@ export const useToDoList = (selectedDate) => {
   });
 
   return {
+    toDoList,
     filteredToDoList,
     addToDo,
     deleteToDo,
