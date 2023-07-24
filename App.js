@@ -15,7 +15,7 @@ import { ITEM_WIDTH } from "./src/helper/util";
 export default function App() {
   const now = dayjs();
   const { selectedDate, setSelectedDate, isDatePickerVisible, showDatePicker, hideDatePicker, handleConfirm, subtractOneMonth, addOneMonth } = useCalendar(now);
-  const { toDoList, addToDo, deleteToDo, toggleToDo, input, setInput, resetInput } = useToDoList(selectedDate);
+  const { filteredToDoList, addToDo, deleteToDo, toggleToDo, input, setInput, resetInput } = useToDoList(selectedDate);
 
   useEffect(() => {}, [selectedDate]);
 
@@ -97,7 +97,7 @@ export default function App() {
         />
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
           <SafeAreaView>
-            <FlatList data={toDoList} renderItem={ToDoRenderItem} ListHeaderComponent={ListHeaderComponent} showsVerticalScrollIndicator={false} />
+            <FlatList data={filteredToDoList} renderItem={ToDoRenderItem} ListHeaderComponent={ListHeaderComponent} showsVerticalScrollIndicator={false} />
             <Margin height={20} />
             <AddToDoInput
               value={input}
