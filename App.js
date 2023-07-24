@@ -5,15 +5,40 @@ import { useEffect, useState } from "react";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import CalendarColumn from "./src/components/CalendarColumn";
 import CalendarArrowButton from "./src/components/CalendarArrowButton";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 export default function App() {
   const now = dayjs();
   const [selectedDate, setSelectedDate] = useState(now);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const colums = getCalendarColumns(selectedDate);
 
-  useEffect(() => {
-    console.log(selectedDate);
-  }, [selectedDate]);
+  useEffect(() => {}, [selectedDate]);
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date) => {
+    setSelectedDate(dayjs(date));
+    hideDatePicker();
+  };
+
+  const onPressLeftArrow = () => {
+    const newSelectedDate = dayjs(selectedDate).subtract(1, "month");
+
+    setSelectedDate(newSelectedDate);
+  };
+
+  const onPressRightArrow = () => {
+    const newSelectedDate = dayjs(selectedDate).add(1, "month");
+
+    setSelectedDate(newSelectedDate);
+  };
 
   const CalendarRenderItem = ({ item: date }) => {
     const dateText = dayjs(date).get("date");
@@ -34,11 +59,11 @@ export default function App() {
     return (
       <View>
         <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-          <CalendarArrowButton onPress={() => {}} iconName={"arrow-left"} />
-          <TouchableOpacity>
+          <CalendarArrowButton onPress={onPressLeftArrow} iconName={"arrow-left"} />
+          <TouchableOpacity onPress={showDatePicker}>
             <Text style={{ fontSize: 20, color: "#404040" }}>{currentDateText}</Text>
           </TouchableOpacity>
-          <CalendarArrowButton onPress={() => {}} iconName={"arrow-right"} />
+          <CalendarArrowButton onPress={onPressRightArrow} iconName={"arrow-right"} />
         </View>
 
         <View style={{ flexDirection: "row" }}>
@@ -60,6 +85,7 @@ export default function App() {
           numColumns={7}
           ListHeaderComponent={ListHeaderComponent}
         />
+        <DateTimePickerModal isVisible={isDatePickerVisible} mode="date" onConfirm={handleConfirm} onCancel={hideDatePicker} />
       </SafeAreaView>
     </SafeAreaProvider>
   );
