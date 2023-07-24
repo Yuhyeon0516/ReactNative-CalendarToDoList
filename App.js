@@ -1,8 +1,12 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import { getCalendarColumns } from "./src/helper/util";
+import { FlatList, StyleSheet } from "react-native";
+import { getCalendarColumns, getDayColor } from "./src/helper/util";
 import dayjs from "dayjs";
 import { useEffect } from "react";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+
+import CalendarColumn from "./src/components/CalendarColumn";
+import Header from "./src/components/Header";
+import CalendarRenderItem from "./src/components/CalendarRenderItem";
 
 export default function App() {
   const now = dayjs();
@@ -11,10 +15,11 @@ export default function App() {
   useEffect(() => {}, []);
 
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <FlatList data={colums} keyExtractor={(_, index) => `column-${index}`} renderItem={CalendarRenderItem} numColumns={7} ListHeaderComponent={Header} />
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
