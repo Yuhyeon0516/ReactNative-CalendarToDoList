@@ -61,12 +61,10 @@ export default function App() {
   const onPressAdd = () => {
     addToDo();
     Keyboard.dismiss();
-    resetInput();
   };
 
   const onSubmitEditing = () => {
     addToDo();
-    resetInput();
   };
 
   const ListHeaderComponent = () => {
